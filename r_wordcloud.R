@@ -76,7 +76,7 @@ write.csv(topten,"topten.csv")
 number_of_words
 write.csv(number_of_words,"number of words.csv")
 ## answer to (4)
-setwd("C:/Users/Pengfei/Desktop/272/Hamilton")
+setwd("C:/Users/hj/Desktop/Hamilton")
 filename = list.files()
 word_Hamilton = NULL
 for (i in 1:length(filename)){
@@ -94,7 +94,7 @@ wordcloud2(freq_Hamilton)
 
 
 
-setwd("C:/Users/Pengfei/Desktop/272/Madison")
+setwd("C:/Users/hj/Desktop/Hamilton")
 filename = list.files()
 word_Madison = NULL
 for (i in 1:length(filename)){
