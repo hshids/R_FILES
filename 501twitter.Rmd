@@ -1,0 +1,66 @@
+---
+title: "501twitter"
+author: "Hanjing Shi"
+date: "9/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+```{r}
+############
+## APIs and Web Scraping
+##################################
+## Gates
+#
+#
+
+library("selectr")
+library("rvest")
+library("xml2")
+
+library(rtweet)
+library(twitteR)
+library(ROAuth)
+library(jsonlite)
+library(openssl)
+library(httpuv)
+setwd("~/Desktop/")
+## The above is where my Twitter Dev passcodes are located.
+## This will NOT BE THE SAME FOR YOU
+
+consumerKey <- "BXDJK7cTEZEw2aNXKiNd8Uu1p"
+consumerSecret <- "gmFdJ0LYyUJATjvxXBoHG59hAwgUVKF6WqgxvrXACTgW89BqG7"
+access_Token <- "1407524939205206018-hU48iB2Vo6OVQcyskOv9eouPV5hXfq"
+access_Secret <- "QZrGlt904UUkpgPvpYOSNXvjLcMgISnX0VcTHYfItDw0c"
+
+requestURL='https://api.twitter.com/oauth/request_token'
+accessURL='https://api.twitter.com/oauth/access_token'
+authURL='https://api.twitter.com/oauth/authorize'
+bearer_token <- Sys.getenv("AAAAAAAAAAAAAAAAAAAAADe0TgEAAAAA1Yejo%2B8q1sccTk1r8KUESZlZoPM%3DY3mtWLInzq73mbmZ1LKMoS8RmGiwWOxjVQdjlYPJLmoaEYsOvT")
+headers <- c(`Authorization` = sprintf('Bearer %s', bearer_token))
+params <- list(`user.fields` = 'description',
+               `expansion` = 'pinned_tweet_id')
+setup_twitter_oauth(consumerKey,consumerSecret,access_Token,access_Secret)
+
+terms <- c("digitaleconomy", "@usbaec", "zoom","covid19business","ecommerce","workingfromhome", "WorkFromHome", "coronamarket","covidmarket")
+terms_search <- paste(terms, collapse = " OR ")
+tweetdata <- twitteR::searchTwitter(terms_search, n=1000, lang="en",since="2020-03-01")
+tweetdata <- twListToDF(tweetdata)
+write.table(tweetdata,"~/Desktop/GGT/501data/tweetdata.csv", append=T, row.names=F, col.names=T,  sep=",")
+#(tweetdata$text[1])
+#tweetdata
+
+
+
+```
+
+
+
+```{r}
+
+```
+

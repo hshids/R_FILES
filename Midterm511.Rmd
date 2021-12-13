@@ -1,0 +1,212 @@
+---
+title: "Midterm511"
+author: "Jack Piccione"
+date: "11/16/2021"
+output: html_document
+---
+
+```{r}
+library(quantmod)
+library(ggplot2)
+
+options("getSymbols.warning4.0"=FALSE)
+options("getSymbols.yahoo.warning"=FALSE)
+tickers = c("GOOG","GOOGL","AAPL","TSLA", "FB" , "AMZN")
+for (i in tickers){
+getSymbols(i,
+from = "2015-10-01",
+to = "2021-10-01")}
+x <- list(
+title = "date"
+)
+y <- list(
+title = "value"
+)
+stock <- data.frame(GOOG$GOOG.Adjusted,
+GOOGL$GOOGL.Adjusted,
+AAPL$AAPL.Adjusted,
+TSLA$TSLA.Adjusted,
+FB$FB.Adjusted,
+AMZN$AMZN.Adjusted)
+stock <- data.frame(stock,rownames(stock))
+colnames(stock) <- append(tickers,'Dates')
+head(stock)
+
+stock$date<-as.Date(stock$Dates,"%Y-%m-%d")
+ggplot(stock, aes(x=date)) +
+geom_line(aes(y=GOOG, colour="GOOG"))+
+geom_line(aes(y=GOOGL, colour="GOOGL"))+
+geom_line(aes(y=AAPL, colour="AAPL"))+
+geom_line(aes(y=TSLA, colour="TSLA"))+
+geom_line(aes(y=FB, colour="FB"))+
+geom_line(aes(y=AMZN, colour="AMZN"))+
+ggtitle("Adjusted Closing Price for Companies from 2015 to 2021")
+
+#a
+#This is a Markov Process because the possible future states are fixed.
+#For example, the probability of checking another stock (a state) is 
+#dependent on the current stock and the time elapsed.
+```
+b.)
+![]()
+
+```{r}
+#c
+stocks <- c("AAPL","AMZN","FB","TSLA","GOOG","GOOGL")
+stockMatrix <- matrix(c(1/6,	1/6,	1/6,	1/6,	1/6,	1/6,
+               0.5,	0,	0.25,	0,	0,	0.25,
+               0,	0.5,	0.5,	0,	0,	0,
+              0.5,	0,	0,	0.5,	0,	0,
+               0,0,0,0.8,0.2,0,
+               0,0,0,0.8,0,0.2),
+             nrow=6, byrow=TRUE)
+row.names(stockMatrix) <- stocks; colnames(stockMatrix) <- stocks
+
+#d
+install.packages("markovchain")
+library(markovchain)
+MC <- new("markovchain",states=stocks,byrow=TRUE,transitionMatrix=stockMatrix)
+MC^13
+#0.324 prob that you end up monitoring TSLA at the end of the day
+#e
+MC^48
+#
+```
+
+```{r}
+#2
+#a
+df<-read.csv("Artists.csv")
+library(corrplot)
+correlationMatrix <- cor(df[,-c(1,2,11,12,13),],use="complete.obs")
+corrplot(correlationMatrix, method="number")
+
+
+boxplot(speechiness ~ artist_name, data = df)
+
+#b
+#Null: the avg speechiness for swift less than or equal to legend 
+#Alt: the avg speechiness is larger for swift than legend 
+
+#c
+swift <- df$speechiness[df$artist_name == "Taylor Swift"]
+
+legend <- df$speechiness[df$artist_name == "John Legend"]
+
+t.test(swift, mu=mean(legend), alternative = "greater")
+#Reject the null hypothesis therefore evidence suggests that the avg 
+#speechiness for swift is not less than or equal to legend 
+
+#d
+#We have 95% confidence that the mean speechiness for swift is likely to be
+#greater than or equal to 0.103
+
+#e
+#bootstrap
+z.1 <- rep(NA,10000)
+for (j in 1:10000){
+boot.swift <- mean(sample(swift, length(swift), replace = T))
+boot.legend <- mean(sample(legend, length(legend), replace = T))
+z.1[j] <- boot.swift - boot.legend #the difference
+}
+mean(z.1)
+ci.1 <- quantile(z.1, c(.025, .975))
+ci.1
+#we reject the null therefore the difference is likely to be positive  
+#f
+(bias= mean(z.1)-mean(df$speechiness)) # bias
+#g
+#the results of C and E are the same therefore there is a good chance 
+#the null hypothesis is rejected 
+```
+
+```{r}
+#3
+df<-read.csv("Artists.csv")
+#a
+breaks <- c(0,.5,.8,1)
+# specify interval/bin labels
+tags <- c("more negative","Moderate", "more positive")
+# bucketing values into bins
+group_tags <- cut(df$Valence, 
+                  breaks=breaks, 
+                  include.lowest=TRUE, 
+                  right=FALSE, 
+                  labels=tags)
+
+
+df$Valance_C <- group_tags
+df$Valance_C<- as.factor(df$Valance_C)
+df$artist_name<- as.factor(df$artist_name)
+#b
+#Null: there is no difference in valance based on artist
+#Alt: there is a difference in valance based on artist
+t<-table(df$artist_name,df$Valance_C)
+t
+chisq.test(t,correct = FALSE)
+#c
+#Reject the null hypothesis therefore evidence suggests there is a difference 
+#in valance between the artists.
+#d
+#I agree with the conclusion in part c because Swift makes a lot of breakup 
+#music 
+```
+```{r}
+#4
+#a
+bey<-subset(df, artist_name == "Beyoncé")    
+ts<-subset(df, artist_name == "Taylor Swift")   
+ts <- subset(ts, select = -c(X,artist_name,track_name,album_name))
+bey <- subset(bey, select = -c(X,artist_name,track_name,album_name))
+
+row.number <- sample(1:nrow(bey), 0.8*nrow(bey))
+bey_train = bey[row.number,]
+bey_test = bey[-row.number,]
+
+row.number <- sample(1:nrow(ts), 0.8*nrow(ts))
+ts_train = ts[row.number,]
+ts_test = ts[-row.number,]
+
+(ts_lm<-lm(danceability ~., data= ts_train))
+bey_lm<-lm(danceability ~., data= bey_train)
+
+#b
+summary(ts_lm)
+#Taylor: the danceability was most strongly predicted by valance, energy,
+#speechiness, acousticness, anf tempo
+summary(bey_lm)
+#Beyonce: danceability was most strongly predicted by valence,acousticness,
+#and liveness
+
+#c
+#i) Valance_C was not a good predictor of danceability because Valance_CModerate       
+# and Valance_Cmore positive had high p-vals
+#ii) acousticness was a good predictor of danceability because it had a very low
+#p-val
+
+#d
+bey_lm2 <- lm(danceability ~ Valence+acousticness+liveness+Valance_C+album_release_year, data= bey_train)
+#model 1 is better even after removing less important variables 
+summary(bey_lm2)
+
+ts_lm2<-lm(danceability ~ . - loudness - Valance_C - album_release_year, data=ts_train)
+#model 1 is better even after removing less important variables
+summary(ts_lm2)
+
+#e
+#model a is better for taylor(R^2 of .31 vs .30 ) and beyonce (R^2 of .52 vs .51)
+
+#f
+summary(bey_lm2)
+#Valence, acousticness,and liveness are the top three predictors for beyonce 
+summary(ts_lm2)
+#Valence, acousticness, and energy are the top three predictors for swift 
+#the predictors are very similar for both artists 
+#the only difference is liveness vs energy which are similar variables
+#overall Valence is the best metric for prediciting danceability 
+
+#g
+# a linear model is not adequate for this data since both models achieved
+#a low R^2 value 
+```
+
