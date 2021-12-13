@@ -3,7 +3,7 @@ library(jiebaR)
 library(wordcloud2)
 options(warn=-1)
 ##
-setwd("C:/Users/Pengfei/Desktop/272/file")
+setwd("C:/Users/hj/Desktop/files")
 ## define the stopwords
 stopwords = c("or","of","and","in","from","the","but","it",
               "some","at","an","into","to","any","The","It",
