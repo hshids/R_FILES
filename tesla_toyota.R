@@ -5,7 +5,7 @@ library(tidyverse)
 library(caret)
 library(quantmod)
 
-setwd("C:\\Users\\wang\\Desktop\\511")
+setwd("~/Desktop/GGT/511")
 Data<-read.csv("ca_ev_registrations_public.csv")
 head(Data)
 str(Data)
@@ -26,7 +26,7 @@ sum(is.na(Data1)) #no missing value
 
 head(Data1)
 str(Data1)
-write.table(Data1,"C:\\Users\\wang\\Desktop\\511\\cleandata.csv",row.names=FALSE,col.names=TRUE, sep =",")
+write.table(Data1,"~/Desktop/GGT/511/cleandata.csv",row.names=FALSE,col.names=TRUE, sep =",")
 
 
 
@@ -37,7 +37,7 @@ Tesla_Model_Y<- subset(Data1, Vehicle.Name == "Tesla Model Y")
 Tesla_Model_Roadster<- subset(Data1, Vehicle.Name == "Tesla Roadster")
 Tesla <- rbind(Tesla_Model_3, Tesla_Model_S, Tesla_Model_X, Tesla_Model_Y, Tesla_Model_Roadster)
 #table(Tesla$Vehicle.Name)
-write.table(Tesla,"C:\\Users\\wang\\Desktop\\511\\Tesla.csv",row.names=FALSE,col.names=TRUE, sep =",")
+write.table(Tesla,"~/Desktop/GGT/511/Tesla.csv",row.names=FALSE,col.names=TRUE, sep =",")
 
 ##################################################################################
 
@@ -63,7 +63,7 @@ c <- colSums(table)
 N = sum(table)
 expected <- round(outer(r,c)/N,2)
 (diff <- (table-expected)^2/expected)
-write.table(diff,"C:\\Users\\wang\\Desktop\\511\\a.csv",row.names=TRUE,col.names=TRUE, sep =",")
+write.table(diff,"~/Desktop/GGT/511/a.csv",row.names=TRUE,col.names=TRUE, sep =",")
 
 
 ##################################################################################
